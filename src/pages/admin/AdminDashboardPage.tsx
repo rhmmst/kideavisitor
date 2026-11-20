@@ -151,7 +151,7 @@ export const AdminDashboardPage: React.FC = () => {
 
     const upcomingTrials = visitors.filter((v) => {
       const s = String(v.status || '').toLowerCase();
-      return v.trialDate >= todayStr && (s === 'pending' || s === 'confirmed' || s === 'scheduled');
+      return Boolean(v.trialDate) && v.trialDate >= todayStr && (s === 'pending' || s === 'confirmed' || s === 'scheduled');
     }).length;
 
     return { totalVisitors, todayRegistrations, upcomingTrials };
@@ -170,7 +170,7 @@ export const AdminDashboardPage: React.FC = () => {
       ).length;
       const upcoming = branchVisitors.filter((v) => {
         const s = String(v.status || '').toLowerCase();
-        return v.trialDate >= todayStr && (s === 'pending' || s === 'confirmed' || s === 'scheduled');
+        return Boolean(v.trialDate) && v.trialDate >= todayStr && (s === 'pending' || s === 'confirmed' || s === 'scheduled');
       }).length;
 
       return {
@@ -232,7 +232,10 @@ export const AdminDashboardPage: React.FC = () => {
             month: 'long',
             year: 'numeric',
           })
-        : v.trialDate;
+        : v.trialDate ||
+          (language === 'id'
+            ? 'Menunggu Konfirmasi Jadwal'
+            : 'To Be Scheduled');
 
     const branchLabel = v.branch_name || 'TK Kidea';
 
@@ -753,7 +756,13 @@ export const AdminDashboardPage: React.FC = () => {
 
                       {/* Trial Date */}
                       <td className="py-3.5 px-4 font-medium text-stone-900">
-                        {v.trialDate}
+                        {v.trialDate ? (
+                          v.trialDate
+                        ) : (
+                          <span className="text-stone-400 italic text-[11px] font-normal">
+                            {language === 'id' ? 'Belum dijadwalkan' : 'Not scheduled'}
+                          </span>
+                        )}
                       </td>
 
                       {/* Trial Status dropdown / badge */}
@@ -955,7 +964,10 @@ export const AdminDashboardPage: React.FC = () => {
                 </div>
                 <div className="p-2.5 rounded-xl bg-white border border-[#FED7AA]">
                   <span className="text-stone-400 block text-[10px]">Tgl Trial</span>
-                  <span className="font-bold text-stone-900">{selectedVisitor.trialDate}</span>
+                  <span className="font-bold text-stone-900">
+                    {selectedVisitor.trialDate ||
+                      (language === 'id' ? 'Belum dijadwalkan' : 'Not scheduled')}
+                  </span>
                 </div>
               </div>
             </div>
@@ -1255,11 +1267,10 @@ export const AdminDashboardPage: React.FC = () => {
               </Select>
 
               <Input
-                label="Tanggal Trial / Trial Date"
+                label="Tanggal Trial / Trial Date (Opsional)"
                 type="date"
-                value={editingVisitor.trialDate}
+                value={editingVisitor.trialDate || ''}
                 onChange={(e) => setEditingVisitor({ ...editingVisitor, trialDate: e.target.value })}
-                required
               />
 
               <Select

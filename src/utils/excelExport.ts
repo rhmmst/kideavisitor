@@ -101,7 +101,7 @@ export const exportVisitorsToExcel = async (visitors: VisitorRecord[]) => {
       v.email || '-',
       v.classCategory,
       v.schoolSession,
-      v.trialDate,
+      v.trialDate || 'Belum Dijadwalkan / Not Scheduled',
       statusLabelMap[v.status?.toLowerCase()] || v.status,
     ]);
 

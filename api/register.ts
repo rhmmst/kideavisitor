@@ -116,9 +116,10 @@ export default async function handler(req: any, res: any) {
     if (!class_category || !VALID_CATEGORIES.includes(class_category)) {
       return res.status(400).json({ success: false, error: 'Kategori kelas tidak valid / Invalid class category.' });
     }
-    if (!trial_date) {
-      return res.status(400).json({ success: false, error: 'Tanggal trial class harus diisi / Trial date is required.' });
-    }
+    const cleanTrialDate =
+      trial_date && typeof trial_date === 'string' && trial_date.trim()
+        ? trial_date.trim()
+        : '2099-12-31';
 
     // Email validation (optional)
     const cleanEmail = email && typeof email === 'string' && email.trim() ? email.trim() : null;
@@ -214,7 +215,7 @@ export default async function handler(req: any, res: any) {
       email: cleanEmail,
       class_category,
       school_session: cleanSession,
-      trial_date,
+      trial_date: cleanTrialDate,
       trial_status: 'pending',
       admin_email_status: 'pending',
       visitor_email_status: cleanEmail ? 'pending' : 'skipped',

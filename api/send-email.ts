@@ -71,7 +71,11 @@ function normalizeVisitor(v: any) {
     v.school_session ||
     v.schoolSession ||
     (classCategory === 'K1' ? '08:00 - 11:45' : classCategory === 'K2' ? '08:00 - 12:00' : '-');
-  const trialDate = v.trial_date || v.trialDate || '';
+  const rawTrialDate = v.trial_date || v.trialDate || '';
+  const trialDate =
+    !rawTrialDate || rawTrialDate === '2099-12-31'
+      ? 'To Be Scheduled / Menunggu Konfirmasi'
+      : rawTrialDate;
   const created_at = v.created_at || new Date().toISOString();
 
   let age = v.age || '';

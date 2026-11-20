@@ -56,7 +56,7 @@ const registrationSchema = z.object({
     'K2',
   ]),
   schoolSession: z.string().min(1, 'Pilih sesi sekolah / School session is required'),
-  trialDate: z.string().min(1, 'Pilih tanggal trial class / Trial date is required'),
+  trialDate: z.string().optional(),
 });
 
 type RegistrationFormData = z.infer<typeof registrationSchema>;
@@ -162,6 +162,8 @@ export const RegistrationPage: React.FC = () => {
     const branchMatch = branches.find((b) => b.id === data.branch_id);
     const payload = {
       ...data,
+      email: data.email || '',
+      trialDate: data.trialDate || '',
       branch_name: branchMatch?.branch_name || data.branch_name,
     };
 
@@ -518,22 +520,30 @@ export const RegistrationPage: React.FC = () => {
             </div>
           </div>
 
-          {/* E. TRIAL CLASS SCHEDULE */}
+          {/* E. TRIAL CLASS SCHEDULE (OPTIONAL) */}
           <div className="space-y-4 pt-4 border-t border-[#FED7AA]">
-            <div className="flex items-center gap-2 text-stone-900 font-display font-bold text-base pb-2 border-b border-[#FED7AA]">
-              <Calendar className="w-5 h-5 text-[#F37321]" />
-              <span>{t.register.secTrial}</span>
+            <div className="flex items-center justify-between pb-2 border-b border-[#FED7AA]">
+              <div className="flex items-center gap-2 text-stone-900 font-display font-bold text-base">
+                <Calendar className="w-5 h-5 text-[#F37321]" />
+                <span>{t.register.secTrial}</span>
+              </div>
+              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#FFF5EA] text-[#9A3412] border border-[#FED7AA]">
+                {language === 'id' ? 'Opsional' : 'Optional'}
+              </span>
             </div>
 
             <div className="max-w-md">
               <Input
                 label={t.register.trialDate}
-                bilingualSub={language === 'id' ? 'Trial Class Date' : 'Tanggal Trial'}
+                bilingualSub={language === 'id' ? 'Trial Class Date (Optional)' : 'Tanggal Trial (Opsional)'}
                 type="date"
                 min={todayStr}
-                required
                 error={errors.trialDate?.message}
-                helperText={language === 'id' ? 'Pilih tanggal kunjungan / trial class (hari kerja)' : 'Select trial class date (weekdays)'}
+                helperText={
+                  language === 'id'
+                    ? 'Opsional — kosongkan jika jadwal trial ingin ditentukan kemudian bersama admin cabang'
+                    : 'Optional — leave blank if you prefer to schedule the trial date later with our branch admin'
+                }
                 {...register('trialDate')}
               />
             </div>
@@ -543,8 +553,8 @@ export const RegistrationPage: React.FC = () => {
           <div className="pt-4 border-t border-[#FED7AA] flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-stone-500">
               {language === 'id'
-                ? '* Seluruh data di atas diperlukan untuk konfirmasi Trial Class.'
-                : '* All fields above are required for Trial Class confirmation.'}
+                ? '* Kolom dengan tanda bintang (*) wajib diisi.'
+                : '* Fields marked with an asterisk (*) are required.'}
             </p>
 
             <Button
@@ -600,7 +610,10 @@ export const RegistrationPage: React.FC = () => {
               </div>
               <div className="flex justify-between py-1 border-b border-[#FED7AA]/60">
                 <span className="text-stone-500">{language === 'id' ? 'Tanggal Trial' : 'Trial Date'}:</span>
-                <span className="font-bold text-stone-900">{submissionSuccess.trialDate}</span>
+                <span className="font-bold text-stone-900">
+                  {submissionSuccess.trialDate ||
+                    (language === 'id' ? 'Menunggu Konfirmasi Admin' : 'To Be Scheduled')}
+                </span>
               </div>
               <div className="flex justify-between py-1">
                 <span className="text-stone-500">{language === 'id' ? 'No. WhatsApp' : 'WhatsApp'}:</span>

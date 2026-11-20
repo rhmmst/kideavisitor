@@ -30,12 +30,14 @@ export function getLocalTodayDateStr(): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+export const UNSCHEDULED_TRIAL_SENTINEL = '2099-12-31';
+
 /**
  * Checks whether a visitor's trial status should automatically transition from 'confirmed' to 'completed'.
  * Rule: ONLY 'confirmed' status transitions to 'completed' when trialDate has passed (trialDate < today).
  */
 export function shouldAutoCompleteTrial(status: string, trialDate?: string | null): boolean {
-  if (!trialDate) return false;
+  if (!trialDate || trialDate === UNSCHEDULED_TRIAL_SENTINEL) return false;
   const normalized = normalizeStatusToDb(status);
   if (normalized !== 'confirmed') return false;
   const todayStr = getLocalTodayDateStr();
@@ -48,6 +50,8 @@ export function shouldAutoCompleteTrial(status: string, trialDate?: string | nul
 export function dbToVisitorRecord(v: any): VisitorRecord {
   const birthDate = v.birth_date || v.dateOfBirth || '';
   const calculatedAge = birthDate ? calculateAge(birthDate, 'en') : (v.age || '-');
+  const rawTrialDate = v.trial_date || v.trialDate || '';
+  const cleanTrialDate = rawTrialDate === UNSCHEDULED_TRIAL_SENTINEL ? '' : rawTrialDate;
 
   return {
     id: v.id,
@@ -77,7 +81,7 @@ export function dbToVisitorRecord(v: any): VisitorRecord {
         : v.class_category === 'K2'
         ? '08:00 - 12:00'
         : v.schoolSession || '-'),
-    trialDate: v.trial_date || v.trialDate || '',
+    trialDate: cleanTrialDate,
     status: v.trial_status || v.status || 'pending',
     admin_email_status: v.admin_email_status || 'pending',
     visitor_email_status: v.visitor_email_status || (v.email ? 'pending' : 'skipped'),
@@ -185,6 +189,7 @@ export async function createVisitor(
   }
 
   const cleanEmail = formData.email?.trim() || null;
+  const cleanTrialDate = formData.trialDate?.trim() || UNSCHEDULED_TRIAL_SENTINEL;
 
   // Only include the 14 public registration columns granted for anon INSERT
   const publicDbPayload = {
@@ -201,7 +206,7 @@ export async function createVisitor(
     email: cleanEmail,
     class_category: formData.classCategory,
     school_session: cleanSession,
-    trial_date: formData.trialDate,
+    trial_date: cleanTrialDate,
   };
 
   // 1. Direct Supabase client insertion (without .select() so anon never touches restricted SELECT on visitors/branches)
@@ -330,7 +335,9 @@ export async function updateVisitorRecord(
       dbUpdates.school_session = updates.schoolSession.replace(/^Session \d+:\s*/i, '').trim() || null;
     }
   }
-  if (updates.trialDate !== undefined) dbUpdates.trial_date = updates.trialDate;
+  if (updates.trialDate !== undefined) {
+    dbUpdates.trial_date = updates.trialDate?.trim() || UNSCHEDULED_TRIAL_SENTINEL;
+  }
   if (updates.status !== undefined) dbUpdates.trial_status = normalizeStatusToDb(updates.status);
   // Only super_admin is allowed to reassign a visitor to a different branch
   if (updates.branch_id !== undefined && profile.isSuperAdmin) {
