@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream-50: #FFFDF9;
+  --color-cream-100: #FFFBF5;
+  --color-cream-200: #FFF5EA;
+  --color-cream-300: #FED7AA;
+  --color-cream-400: #FDBA74;
+
+  --color-kidea-orange-50: #FFF7ED;
+  --color-kidea-orange-100: #FFEDD5;
+  --color-kidea-orange-200: #FED7AA;
+  --color-kidea-orange-300: #FDBA74;
+  --color-kidea-orange-400: #FB923C;
+  --color-kidea-orange-500: #F37321;
+  --color-kidea-orange-600: #EA580C;
+  --color-kidea-orange-700: #C2410C;
+  --color-kidea-orange-800: #9A3412;
+
+  --color-kidea-yellow-50: #FFFBEB;
+  --color-kidea-yellow-100: #FEF3C7;
+  --color-kidea-yellow-200: #FDE68A;
+  --color-kidea-yellow-300: #FCD34D;
+  --color-kidea-yellow-400: #FBBF24;
+  --color-kidea-yellow-500: #F59E0B;
+  --color-kidea-yellow-600: #D97706;
+
+  --color-kidea-blue-50: #F0F9FF;
+  --color-kidea-blue-100: #E0F2FE;
+  --color-kidea-blue-500: #0284C7;
+
+  --color-kidea-green-50: #F0FDF4;
+  --color-kidea-green-100: #DCFCE7;
+  --color-kidea-green-500: #22C55E;
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Quicksand', 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-cream-100);
+    color: #292524;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+  }
+}
+
+/* Custom warm friendly scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFFBF5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FED7AA;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FB923C;
+}
